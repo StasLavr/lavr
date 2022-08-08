@@ -22,6 +22,11 @@ echo $name >> /etc/hostname
 
 echo "Введите пароль от Root"
 passwd root
+echo -n "
+1. EFI GRUB
+2. Legacy GRUB
+Какой тип загрушика установить?: "
+read $systemgrub
 if (($systemgrub == 1)); then
     pacman -S networkmanager grub efibootmgr
     grub-install 
@@ -32,6 +37,7 @@ elif (($systemgrub = 2)); then
     pacman -S networkmanager grub
     grub-install /dev/$grub
     grub-mkconfig /boot/grub/grub.cfg
+else echo "Неверный параментр"
 fi
 systemctl enable networkmanager
 clear
