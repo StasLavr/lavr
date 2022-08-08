@@ -1,0 +1,99 @@
+#! /bin/bash
+setfont cyr-sun16
+echo -n"
+1. EFI режиме
+2. Legacy режиме
+Каком режиме вы хотите установить систему"
+read systemgrub
+if (($systemgrub == 1)); then
+    echo -n "Выберете раздел для EFI (sda1,sdb2 и т.п):"
+       read efifs
+       mkfs.fat -F 32 /dev/$efifs
+fi
+clear
+lsblk
+echo -n "Выберете раздел для roofs(/) (sda1,sdb2 и т.п): "
+read root
+echo -n "
+1.BTRFS
+2.EXT4
+3.XFS
+Выберете файловую систему: "
+read fsroot
+if (($fsroot == 1)); then
+    mkfs.btrfs -f /dev/$root
+elif (($fsroot == 2)); then
+    mkfs.ext4 /dev/$root
+elif (($fsroot == 3)); then
+    mkfs.xfs /dev/$root
+else
+    echo "Неверный параментр"
+fi
+clear
+lsblk
+echo -n "
+1. Нет
+2. Да
+Нужно ли создавать раздел /home?: "
+read homeys
+if (($homeys == 2)); then
+lsblk
+echo -n "Выберете раздел для /home (sda1,sdb2 и т.п): "
+read home
+echo -n "
+1.BTRFS
+2.EXT4
+3.XFS
+Выберете файловую систему: "
+read fshome
+else 
+    echo "Неверно"
+fi
+if (($fshome == 1)) && (($homeys == 2)); then
+    mkfs.btrfs -f /dev/$home
+    mkdir /mnt/home
+    mount /dev/$home /mnt/home
+elif (($fshome == 2)) && (($homeys == 2)); then
+    mkfs.ext4 /dev/$home
+    mkdir /mnt/home
+    mount /dev/$home /mnt/home
+elif (($fshome == 3)) && (($homeys == 2)); then
+    mkfs.xfs /dev/$home
+    mkdir /mnt/home
+    mount /dev/$home /mnt/home
+elif (($homeys == 1)); then
+    clear
+else
+    echo "Неверный параментр"
+fi
+claer
+mount /dev/$root /mnt
+if (($systemgrub == 1)); then
+    mkdir /boot
+    mkdir /boot/efi
+   mount /dev/$efifs /mnt/boot/efi
+fi
+echo 'Server = http://mirror.hoster.kz/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+echo -n "
+1.Linux
+2.Linux ZEN
+3.Linux LTS
+Выберете ядро системы: "
+read kernel
+if (($kernel == 1)) && (($fsroot == 1)); then
+    pacstrap /mnt base linux linux-firmware linux-headers base-devel sudo nano btrfs-progs
+elif (($kernel == 2)) && (($fsroot == 1)); then
+    pacstrap /mnt base linux-zen linux-firmware linux-zen-headers base-devel sudo nano btrfs-progs
+elif (($kernel == 3)) && (($fsroot == 1)); then
+    pacstrap /mnt base linux-lts linux-firmware linux-lts-headers base-devel sudo nano btrfs-progs
+elif (($kernel == 1));then
+    pacstrap /mnt base linux linux-firmware linux-headers base-devel sudo nano 
+elif (($kernel == 2)); then
+    pacstrap /mnt base linux-zen linux-firmware linux-zen-headers base-devel sudo nano 
+elif (($kernel == 3)); then
+    pacstrap /mnt base linux-lts linux-firmware linux-lts-headers base-devel sudo nano 
+else echo "Неверный параментр"
+fi
+genfstab -U /mnt >> /mnt/etc/fstab
+cp test.sh /mnt 
+arch-chroot /mnt sh -c "$(curl -fsSL https://raw.githubusercontent.com/StasLavr/lavr/bash/chroot)
