@@ -1,0 +1,40 @@
+#! /bin/bash
+echo -n "
+1.Русский
+2.Английский
+Выберете язык системы: "
+read leag
+if (($leag == 1)); then
+   echo ru_RU.UTF-8 >> /etc/locale.gen
+   echo en_US.UTF-8 >> /etc/locale.gen
+   locale-gen
+   echo LANG=ru_RU.UTF-8 >> /etc/locale.conf
+   echo KEYMAP=ru >> /etc/vconsole.conf
+   echo FONT=cyr-sun16 >> FONT=cyr-sun16
+elif (($leag == 2)); then
+    clear
+else echo "Неверный параментр"
+fi
+clear
+echo "Введите имя компьютера: "
+read name
+echo $name >> /etc/hostname
+
+echo "Введите пароль от Root"
+passwd root
+if (($systemgrub == 1)); then
+    pacman -S networkmanager grub efibootmgr
+    grub-install 
+    grub-mkconfig -o /boot/grub/grub.cfg
+elif (($systemgrub = 2)); then
+    echo -n "Выберете на какой диск будет установлен GRUB (sda,sdb и т.п): "
+    read $grub
+    pacman -S networkmanager grub
+    grub-install /dev/$grub
+    grub-mkconfig /boot/grub/grub.cfg
+fi
+systemctl enable networkmanager
+clear
+echo "Установка успешно завершена"
+exit 
+reboot
