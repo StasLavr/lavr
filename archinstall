@@ -96,7 +96,6 @@ else echo "Неверный параментр"
 fi
 genfstab -U /mnt >> /mnt/etc/fstab
 cp test.sh /mnt 
-arch-chroot /mnt sh -c "$(curl -fsSL https://raw.githubusercontent.com/StasLavr/lavr/bash/install2)
-
+arch-chroot /mnt sh -c "$(curl -fsSL https://raw.githubusercontent.com/StasLavr/lavr/bash/install2)"
 
 
