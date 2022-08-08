@@ -73,7 +73,7 @@ if (($systemgrub == 1)); then
     mkdir /boot/efi
    mount /dev/$efifs /mnt/boot/efi
 fi
-echo 'Server = http://mirror.hoster.kz/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+echo 'http://ftp.acc.umu.se/mirror/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 echo -n "
 1.Linux
 2.Linux ZEN
